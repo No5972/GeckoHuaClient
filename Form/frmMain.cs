@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using Skybound.Gecko;       //Skybound.Gecko.dll,拖到引用中去,然后也拖到工具箱中去(可以新建一个GeckoFX工具箱选项卡)
 
@@ -24,6 +25,11 @@ namespace JingsuPlatform
 
         public ComboBox resolution { get; set; }
         public Button captureBtn { get; set; }
+        public Button customeCaptureBtn { get; set; }
+
+        private int offsetX = 0, offsetY = 0, customWidth = 0, customHeight = 0, previousWidth = 0, previousHeight = 0;
+        private double scale = 0.0;
+        
 
         [DllImport("user32.dll")]
         private static extern bool SetWindowPos(IntPtr hWnd, int hWndlnsertAfter, int X, int Y, int cx, int cy, uint Flags);
@@ -57,7 +63,7 @@ namespace JingsuPlatform
             captureBtn.Text = "截图";
             captureBtn.Left = 0;
             captureBtn.Top = 0;
-            captureBtn.Width = 150;
+            captureBtn.Width = 100;
             captureBtn.Height = 25;
             captureBtn.Click += CaptureBtn_Click;
             captureBtn.MouseUp += CaptureBtn_MouseUp;
@@ -72,7 +78,7 @@ namespace JingsuPlatform
             resolution.Items.Add("7680x4320");
             resolution.Items.Add("128x72");
             resolution.Items.Add("自定义...");
-            resolution.Left = 150;
+            resolution.Left = 100;
             resolution.Top = 0;
             resolution.Width = 100;
             resolution.Height = 30;
@@ -82,6 +88,21 @@ namespace JingsuPlatform
             this.Controls.Add(resolution);
             this.Controls.SetChildIndex(resolution, 0);
 
+            customeCaptureBtn = new Button();
+            customeCaptureBtn.Text = "自定义截图...";
+            customeCaptureBtn.Left = 200;
+            customeCaptureBtn.Top = 0;
+            customeCaptureBtn.Width = 150;
+            customeCaptureBtn.Height = 25;
+            customeCaptureBtn.Click += CustomCaptureBtn_Click;
+            this.Controls.Add(customeCaptureBtn);
+            this.Controls.SetChildIndex(customeCaptureBtn, 0);
+
+        }
+
+        private void CustomCaptureBtn_Click(object sender, EventArgs e)
+        {
+            invokeCustomCapture(4320, 7680, 4.5, -4500, -2000);
         }
 
         private void CaptureBtn_MouseUp(object sender, MouseEventArgs e)
@@ -93,7 +114,7 @@ namespace JingsuPlatform
         {
             try
             {
-                Bitmap b = GetWindow(FindWindow(null, "改口 小花仙登录器 V0.1 BY 鄙人 贴吧/B站：wujiuqier Github：No5972"));
+                Bitmap b = GetWindow(FindWindow(null, this.Text));
                 SaveFileDialog s = new SaveFileDialog();
                 s.Filter = "PNG图片 (*.png)|*.png";
                 if (s.ShowDialog() == DialogResult.OK)
@@ -113,6 +134,26 @@ namespace JingsuPlatform
 
             
         }
+
+        private async void invokeCustomCapture(int width, int height, double scale, int offsetX, int offsetY)
+        {
+            int previousW = this.Width, previousH = this.Height;
+            this.customeCaptureBtn.Enabled = false;
+
+            resizeWindow(width, height);
+            geckoWebBrowser1.Navigate("javascript:void(document.getElementsByTagName('embed')[0].Zoom(" + (100.0 / scale) +  "));");
+            this.offsetX = offsetX;
+            this.offsetY = offsetY;
+            this.previousWidth = previousW;
+            this.previousHeight = previousH;
+            this.customWidth = width;
+            this.customHeight = height;
+            this.scale = scale;
+            timer1.Enabled = true;
+            
+        }
+
+
 
         private void CaptureBtn_Click(object sender, EventArgs e)
         {
@@ -161,7 +202,7 @@ namespace JingsuPlatform
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            geckoWebBrowser1.Navigate("http://hua.61.com/Client.swf?platform=winform&timestamp="  + DateTime.Now.ToString());
+            geckoWebBrowser1.Navigate("http://hua.61.com/Client.swf");
         }
 
         private void cmdGo_Click(object sender, EventArgs e)
@@ -181,6 +222,9 @@ namespace JingsuPlatform
         {
             // this.Text = "加载完成。";
             // timer1.Enabled = false;
+            GeckoElement geckoElement = geckoWebBrowser1.Document.CreateElement("script");
+            geckoElement.TextContent = "window.onresize = function () {document.getElementsByTagName('embed')[0].Zoom(100);};";
+            geckoWebBrowser1.Document.GetElementsByTagName("head")[0].AppendChild(geckoElement);
         }
 
         private void geckoWebBrowser1_Navigating(object sender, GeckoNavigatingEventArgs e)
@@ -306,6 +350,23 @@ namespace JingsuPlatform
          int nHeight     // height of bitmap, in pixels
          );
 
+        private void timer2_Tick(object sender, EventArgs e)
+        {
+            geckoWebBrowser1.Navigate("javascript:void(document.getElementsByTagName('embed')[0].Pan(" + this.offsetX + "," + this.offsetY + ", 0));");
+            timer3.Enabled = true;
+            timer2.Enabled = false;
+        }
+
+        private void timer3_Tick(object sender, EventArgs e)
+        {
+            this.customeCaptureBtn.Enabled = true;
+            this.timer3.Enabled = false;
+            invokeCapture();
+            resizeWindow(previousWidth, previousHeight);
+            geckoWebBrowser1.Navigate("javascript:void(document.getElementsByTagName('embed')[0].Zoom(500));");
+
+        }
+
         [DllImport("gdi32.dll")]
         public static extern IntPtr SelectObject(
          IntPtr hdc,          // handle to DC
@@ -329,5 +390,16 @@ namespace JingsuPlatform
          IntPtr hwnd
          );
 
+        /// <summary>
+        /// 老写法
+        /// </summary>
+        private void timer1_Tick_1(object sender, EventArgs e)
+        {
+            // MessageBox.Show("simulate pan");
+            // geckoWebBrowser1.Navigate("javascript:void(document.getElementsByTagName('embed')[0].Pan(" + this.offsetX + "," + this.offsetY + ", 0));");
+            geckoWebBrowser1.Navigate("javascript:void(document.getElementsByTagName('embed')[0].Zoom(" + 100.0 / this.scale + "));");
+            timer2.Enabled = true;
+            timer1.Enabled = false;
+        }
     }
 }

@@ -1,20 +1,31 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30517.126
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JingsuPlatform", "JingsuPlatform.csproj", "{9795450E-96B4-4322-BC9D-CDB66CDE6EC5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9795450E-96B4-4322-BC9D-CDB66CDE6EC5}.Debug|x64.ActiveCfg = Debug|x64
+		{9795450E-96B4-4322-BC9D-CDB66CDE6EC5}.Debug|x64.Build.0 = Debug|x64
 		{9795450E-96B4-4322-BC9D-CDB66CDE6EC5}.Debug|x86.ActiveCfg = Debug|x86
 		{9795450E-96B4-4322-BC9D-CDB66CDE6EC5}.Debug|x86.Build.0 = Debug|x86
+		{9795450E-96B4-4322-BC9D-CDB66CDE6EC5}.Release|x64.ActiveCfg = Release|x64
+		{9795450E-96B4-4322-BC9D-CDB66CDE6EC5}.Release|x64.Build.0 = Release|x64
 		{9795450E-96B4-4322-BC9D-CDB66CDE6EC5}.Release|x86.ActiveCfg = Release|x86
 		{9795450E-96B4-4322-BC9D-CDB66CDE6EC5}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {532F7FB3-8343-4C53-8770-A969FBB43C0D}
 	EndGlobalSection
 EndGlobal
